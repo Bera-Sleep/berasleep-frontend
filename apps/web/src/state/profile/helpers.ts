@@ -6,7 +6,8 @@ import { getTeam } from 'state/teams/helpers'
 import { NftToken } from 'state/nftMarket/types'
 import { getNftApi } from 'state/nftMarket/helpers'
 import { multicallv2 } from 'utils/multicall'
-import { getPancakeProfileAddress } from 'utils/addressHelpers'
+import { getBeraSleepProfileAddress, getPancakeProfileAddress } from 'utils/addressHelpers'
+import { beraMulticallv2 } from 'config/chains'
 
 export interface GetProfileResponse {
   hasRegistered: boolean
@@ -47,9 +48,9 @@ export const getUsername = async (address: string): Promise<string> => {
 export const getProfile = async (address: string): Promise<GetProfileResponse> => {
   try {
     const profileCalls = ['hasRegistered', 'getUserProfile'].map((method) => {
-      return { address: getPancakeProfileAddress(), name: method, params: [address] }
+      return { address: getBeraSleepProfileAddress(), name: method, params: [address] }
     })
-    const profileCallsResult = await multicallv2({
+    const profileCallsResult = await beraMulticallv2({
       abi: profileABI,
       calls: profileCalls,
       options: { requireSuccess: false },

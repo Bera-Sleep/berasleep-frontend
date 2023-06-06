@@ -65,7 +65,7 @@ const UserDetail = () => {
 
   return (
     <>
-      {(isTablet || isDesktop) && (
+      {/*{(isTablet || isDesktop) && (
         <Desktop>
           <Box mr="24px">
             <Sticker>
@@ -112,7 +112,7 @@ const UserDetail = () => {
             <Skeleton width={120} height={20} mt="2px" mb="18px" />
           ) : null}
         </Mobile>
-      )}
+      )}*/}
     </>
   )
 }

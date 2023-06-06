@@ -1,4 +1,8 @@
 import { getFullDecimalMultiplier } from '@pancakeswap/utils/getFullDecimalMultiplier'
+import { BigNumberish } from 'ethers'
+import { AccessListish } from '@ethersproject/transactions'
+import { Provider } from '@ethersproject/providers'
+import { BlockTag } from '@ethersproject/abstract-provider'
 
 export const BSC_BLOCK_TIME = 3
 
@@ -22,3 +26,44 @@ export const AUCTION_BIDDERS_TO_FETCH = 500
 export const RECLAIM_AUCTIONS_TO_FETCH = 500
 export const AUCTION_WHITELISTED_BIDDERS_TO_FETCH = 500
 export const IPFS_GATEWAY = 'https://ipfs.io/ipfs'
+
+export interface CallV3 extends Call {
+  abi: any[] | any
+  allowFailure?: boolean
+}
+export interface Overrides {
+  gasLimit?: BigNumberish | Promise<BigNumberish>
+  gasPrice?: BigNumberish | Promise<BigNumberish>
+  maxFeePerGas?: BigNumberish | Promise<BigNumberish>
+  maxPriorityFeePerGas?: BigNumberish | Promise<BigNumberish>
+  nonce?: BigNumberish | Promise<BigNumberish>
+  type?: number
+  accessList?: AccessListish
+  customData?: Record<string, any>
+  ccipReadEnabled?: boolean
+}
+
+export interface PayableOverrides extends Overrides {
+  value?: BigNumberish | Promise<BigNumberish>
+}
+
+export interface CallOverrides extends PayableOverrides {
+  blockTag?: BlockTag | Promise<BlockTag>
+  from?: string | Promise<string>
+}
+export interface Call {
+  address: string // Address of the contract
+  name: string // Function name on the contract (example: balanceOf)
+  params?: any[] // Function params
+}
+
+export interface MulticallOptions extends CallOverrides {
+  requireSuccess?: boolean
+}
+
+export interface MulticallV3Params {
+  calls: CallV3[]
+  chainId?: number
+  allowFailure?: boolean
+  overrides?: CallOverrides
+}

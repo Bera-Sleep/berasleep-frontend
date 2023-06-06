@@ -1,4 +1,5 @@
 import { ChainId } from '@pancakeswap/sdk'
+import { beraMulticallAddress, beraSleepProfileAddress, ftmTest } from 'config/chains'
 import addresses from 'config/constants/contracts'
 import { VaultKey } from 'state/types'
 
@@ -24,6 +25,12 @@ export const getLotteryV2Address = () => {
 }
 export const getPancakeProfileAddress = () => {
   return getAddress(addresses.pancakeProfile)
+}
+export const getBeraSleepProfileAddress = (chainId: number = ftmTest.chainId) => {
+  return beraSleepProfileAddress[chainId]
+}
+export const getBeraMulticallAddress = (chainId: number = ftmTest.chainId) => {
+  return beraMulticallAddress[chainId]
 }
 export const getPancakeBunniesAddress = () => {
   return getAddress(addresses.pancakeBunnies)

@@ -1,7 +1,7 @@
 import type { Signer } from 'ethers'
 import type { Provider } from '@ethersproject/providers'
 import { provider } from 'utils/wagmi'
-import { Contract } from 'ethers'
+import { Contract, ethers } from 'ethers'
 import { CAKE } from '@pancakeswap/tokens'
 
 // Addresses
@@ -136,6 +136,7 @@ import type {
   UNS,
 } from 'config/abi/types'
 import { ChainId } from '@pancakeswap/sdk'
+import { beraTokenAddress, cakeVaultV2Address, ftmTest } from 'config/chains'
 
 export const getContract = ({
   abi,
@@ -169,6 +170,16 @@ export const getIfoV2Contract = (address: string, signer?: Signer | Provider) =>
 }
 export const getIfoV3Contract = (address: string, signer?: Signer | Provider) => {
   return getContract({ abi: ifoV3Abi, address, signer })
+}
+
+export const getBeraSleepPoolAddress = (chainId?: number) => {
+  return cakeVaultV2Address[chainId ?? ftmTest.chainId]
+}
+
+export const getBeraSleepTokenContract = (signer?: Signer | Provider, chainId?: number) => {
+  const beraAddress = beraTokenAddress[chainId ?? ftmTest.chainId]
+  const ftmProvider = new ethers.providers.StaticJsonRpcProvider(ftmTest.rpc)
+  return new ethers.Contract(beraAddress, cakeAbi, ftmProvider) as Cake
 }
 
 export const getPointCenterIfoContract = (signer?: Signer | Provider) => {

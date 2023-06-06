@@ -3,8 +3,9 @@ import { getUnixTime, sub } from 'date-fns'
 import { gql } from 'graphql-request'
 import { GetStaticProps } from 'next'
 import { SWRConfig } from 'swr'
+import { cakeVaultV2Address, ftmTest } from 'config/chains'
 import { getCakeVaultAddress } from 'utils/addressHelpers'
-import { getCakeContract } from 'utils/contractHelpers'
+import { getBeraSleepPoolAddress, getBeraSleepTokenContract, getCakeContract } from 'utils/contractHelpers'
 import { getBlocksFromTimestamps } from 'utils/getBlocksFromTimestamps'
 import { bitQueryServerClient, infoServerClient } from 'utils/graphql'
 import Home from '../views/Home'
@@ -112,8 +113,8 @@ export const getStaticProps: GetStaticProps = async () => {
     `)
     const cake = await (await fetch('https://farms-api.pancakeswap.com/price/cake')).json()
     const { totalLiquidityUSD } = result.pancakeFactories[0]
-    const cakeVaultV2 = getCakeVaultAddress()
-    const cakeContract = getCakeContract()
+    const cakeVaultV2 = getBeraSleepPoolAddress()
+    const cakeContract = getBeraSleepTokenContract(undefined, ftmTest.chainId)
     const totalCakeInVault = await cakeContract.balanceOf(cakeVaultV2)
     results.tvl = parseFloat(formatEther(totalCakeInVault)) * cake.price + parseFloat(totalLiquidityUSD)
   } catch (error) {

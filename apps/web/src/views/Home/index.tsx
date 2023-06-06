@@ -46,6 +46,8 @@ const Home: React.FC<React.PropsWithChildren> = () => {
   const { theme } = useTheme()
   const { address: account } = useAccount()
   const { chainId } = useActiveChainId()
+  console.log(chainId)
+  console.log()
 
   const HomeSectionContainerStyles = { margin: '0', width: '100%', maxWidth: '968px' }
 
@@ -94,7 +96,7 @@ const Home: React.FC<React.PropsWithChildren> = () => {
             <UserBanner />
           </UserBannerWrapper>
         )}
-        <MultipleBanner />
+        {/* <MultipleBanner /> */}
         <Hero />
       </StyledHeroSection>
       <PageSection

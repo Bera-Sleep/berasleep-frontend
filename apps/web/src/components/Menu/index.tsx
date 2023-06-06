@@ -22,7 +22,7 @@ const LinkComponent = (linkProps) => {
 const Menu = (props) => {
   const { chainId } = useActiveChainId()
   const { isDark, setTheme } = useTheme()
-  const cakePriceUsd = useCakeBusdPrice({ forceMainnet: true })
+  // const cakePriceUsd = useCakeBusdPrice({ forceMainnet: true })
   const { currentLanguage, setLanguage, t } = useTranslation()
   const { pathname } = useRouter()
   const [onUSCitizenModalPresent] = useModal(<USCitizenConfirmModal />, true, false, 'usCitizenConfirmModal')
@@ -47,7 +47,7 @@ const Menu = (props) => {
         linkComponent={LinkComponent}
         rightSide={
           <>
-            <GlobalSettings mode={SettingsMode.GLOBAL} />
+            {/* <GlobalSettings mode={SettingsMode.GLOBAL} /> */}
             <NetworkSwitcher />
             <UserMenu />
           </>
@@ -59,7 +59,7 @@ const Menu = (props) => {
         currentLang={currentLanguage.code}
         langs={languageList}
         setLang={setLanguage}
-        cakePriceUsd={cakePriceUsd}
+        // cakePriceUsd={cakePriceUsd}
         links={menuItems}
         subLinks={activeMenuItem?.hideSubNav || activeSubMenuItem?.hideSubNav ? [] : activeMenuItem?.items}
         footerLinks={getFooterLinks}
