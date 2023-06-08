@@ -2,11 +2,13 @@ import { ChainId } from '@pancakeswap/sdk'
 import { MultiCallV2 } from '@pancakeswap/multicall'
 import memoize from 'lodash/memoize'
 import invert from 'lodash/invert'
-import { bsc, bscTestnet, goerli, mainnet } from 'wagmi/chains'
+import { bsc, bscTestnet, goerli, mainnet, fantomTestnet } from 'wagmi/chains'
 import { ethers } from 'ethers'
+import { getBeraBunnyFactoryAddress } from 'utils/addressHelpers'
 import { Interface, Fragment } from '@ethersproject/abi'
 import { MulticallV3Params } from 'config'
 import multicall3Abi from './abi/Multicall.json'
+import bunnyAbi from './abi/bunnyFactory.json'
 
 export const CHAIN_QUERY_NAME = {
   [ChainId.ETHEREUM]: 'eth',
@@ -22,9 +24,19 @@ export const getChainId = memoize((chainName: string) => {
   return CHAIN_QUERY_NAME_TO_ID[chainName] ? +CHAIN_QUERY_NAME_TO_ID[chainName] : undefined
 })
 
-export const CHAINS = [bsc, mainnet, bscTestnet, goerli]
+export const CHAINS = [bsc, mainnet, bscTestnet, goerli, fantomTestnet]
 
-export const ftmTest = {
+export interface IBlockChainData {
+  chainId: number
+  rpc: string
+  name: string
+  symbol: string
+  hexChainId: string
+  blockExplorer: string
+  decimal: number
+}
+
+export const ftmTest: IBlockChainData = {
   chainId: 4002,
   rpc: 'https://rpc.testnet.fantom.network',
   name: 'Fantom testnet',
@@ -50,10 +62,17 @@ export const beraMulticallAddress = {
   4002: '0xE4019DfBc58f54fa4CE48EE90220FAd328A1A93c',
 }
 
+export const beraBunnyFactoryAddress = {
+  4002: '0x6b1AF859d15635B52c5501fB2112bfD8e5708640',
+}
+
+const newProvider = {
+  [ftmTest.chainId]: new ethers.providers.StaticJsonRpcProvider(ftmTest.rpc),
+}
+
 export const getBeraMulticallContract = (chainId: number = ftmTest.chainId) => {
   const multicallAddress = beraMulticallAddress[chainId ?? ftmTest.chainId]
-  const ftmProvider = new ethers.providers.StaticJsonRpcProvider(ftmTest.rpc)
-  return new ethers.Contract(multicallAddress, multicall3Abi, ftmProvider)
+  return new ethers.Contract(multicallAddress, multicall3Abi, newProvider[chainId])
 }
 
 export const beraMulticallv3 = async ({
@@ -111,4 +130,9 @@ export const beraMulticallv2: MultiCallV2 = async ({ abi, calls, chainId = ftmTe
   })
 
   return res as any
+}
+
+export const getBeraBunnyFactoryContract = (chainId: number = ftmTest.chainId) => {
+  const bunnyFactoryAddress = getBeraBunnyFactoryAddress(chainId)
+  return new ethers.Contract(bunnyFactoryAddress, bunnyAbi, newProvider[chainId])
 }

@@ -104,16 +104,18 @@ const MenuItem: React.FC<React.PropsWithChildren<FooterProps>> = ({
             {/* <Box mr="20px">
               <CakePrice chainId={chainId} cakePriceUsd={cakePriceUsd} color="textSubtle" />
             </Box> */}
-            <Button
-              data-theme={isDark ? "dark" : "light"}
-              as="a"
-              href={buyCakeLink}
-              target="_blank"
-              scale="sm"
-              endIcon={<ArrowForwardIcon color="backgroundAlt" />}
-            >
-              {buyCakeLabel}
-            </Button>
+            {buyCakeLabel && (
+              <Button
+                data-theme={isDark ? "dark" : "light"}
+                as="a"
+                href={buyCakeLink}
+                target="_blank"
+                scale="sm"
+                endIcon={<ArrowForwardIcon color="backgroundAlt" />}
+              >
+                {buyCakeLabel}
+              </Button>
+            )}
           </Flex>
         </StyledToolsContainer>
       </Flex>

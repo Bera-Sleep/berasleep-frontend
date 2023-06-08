@@ -203,8 +203,8 @@ const Menu: React.FC<React.PropsWithChildren<NavProps>> = ({
         setLang={setLang}
         currentLang={currentLang}
         // cakePriceUsd={cakePriceUsd}
-        buyCakeLabel={buyCakeLabel}
-        buyCakeLink={buyCakeLink}
+        // buyCakeLabel={buyCakeLabel}
+        // buyCakeLink={buyCakeLink}
         mb={[`${MOBILE_MENU_HEIGHT}px`, null, "0px"]}
       />
       <AtomBox display={{ xs: "block", md: "none" }}>
