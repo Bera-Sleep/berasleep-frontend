@@ -142,7 +142,7 @@ export function UpdatePositionsReminder_() {
   const { toastSuccess } = useToast()
   const { loading: txLoading, fetchWithCatchTxError } = useCatchTxError()
 
-  const masterChefV3Address = useMasterchefV3()?.address
+  const masterChefV3Address = useBeraMasterChefV3()?.address
   const deadline = useTransactionDeadline() // custom from users settings
 
   const [triggerOnce, setTriggerOnce] = useState(false)
