@@ -46,6 +46,21 @@ export const ftmTest: IBlockChainData = {
   decimal: 18,
 }
 
+export const bscMainnet: IBlockChainData = {
+  chainId: 56,
+  rpc: 'https://bsc.rpc.blxrbdn.com',
+  name: 'BSC Mainnet',
+  symbol: 'BNB',
+  hexChainId: '0x38',
+  blockExplorer: 'https://bscscan.com/',
+  decimal: 18,
+}
+
+export const blockChainData = {
+  56: bscMainnet,
+  4002: ftmTest,
+}
+
 export const cakeVaultV2Address = {
   4002: '0xAE06cF3a2247aea8217e95E2e26b440bfB7C9b99',
 }
@@ -66,8 +81,13 @@ export const beraBunnyFactoryAddress = {
   4002: '0x6b1AF859d15635B52c5501fB2112bfD8e5708640',
 }
 
-const newProvider = {
+export const beraMasterChefV3Address = {
+  4002: '0x70F3Db6104306c739Ee3fddc4cAbF1EE36fE9108',
+}
+
+export const newProvider = {
   [ftmTest.chainId]: new ethers.providers.StaticJsonRpcProvider(ftmTest.rpc),
+  [bscMainnet.chainId]: new ethers.providers.StaticJsonRpcProvider(bscMainnet.rpc),
 }
 
 export const getBeraMulticallContract = (chainId: number = ftmTest.chainId) => {

@@ -36,6 +36,7 @@ import {
   getMasterChefV3Address,
   getV3MigratorAddress,
   getV3AirdropAddress,
+  getBeraMasterChefV3Address,
 } from 'utils/addressHelpers'
 
 // ABI
@@ -136,7 +137,7 @@ import type {
   UNS,
 } from 'config/abi/types'
 import { ChainId } from '@pancakeswap/sdk'
-import { beraTokenAddress, cakeVaultV2Address, ftmTest } from 'config/chains'
+import { beraTokenAddress, cakeVaultV2Address, ftmTest, newProvider } from 'config/chains'
 
 export const getContract = ({
   abi,
@@ -375,6 +376,11 @@ export const getMasterChefV3Contract = (signer?: Signer | Provider, chainId?: nu
     chainId,
     signer,
   }) as MasterChefV3
+}
+
+export const getBeraMasterChefV3Contract = (chainId?: number) => {
+  const beraMasterChefV3Address = getBeraMasterChefV3Address(chainId)
+  return new ethers.Contract(beraMasterChefV3Address, masterChefV3Abi, newProvider[chainId])
 }
 
 export const getV3MigratorContract = (signer?: Signer | Provider, chainId?: number) => {

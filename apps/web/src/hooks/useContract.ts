@@ -62,6 +62,7 @@ import {
   getMasterChefV3Contract,
   getV3AirdropContract,
   getUnsContract,
+  getBeraMasterChefV3Contract,
 } from 'utils/contractHelpers'
 import { useSigner } from 'wagmi'
 
@@ -388,6 +389,11 @@ export function useMasterchefV3(withSignerIfPossible?: boolean) {
   const { chainId } = useActiveChainId()
   const providerOrSigner = useProviderOrSigner(withSignerIfPossible)
   return useMemo(() => getMasterChefV3Contract(providerOrSigner, chainId), [chainId, providerOrSigner])
+}
+
+export const useBeraMasterChefV3 = () => {
+  const { chainId } = useActiveChainId()
+  return useMemo(() => getBeraMasterChefV3Contract(chainId), [chainId])
 }
 
 export function useV3MigratorContract() {

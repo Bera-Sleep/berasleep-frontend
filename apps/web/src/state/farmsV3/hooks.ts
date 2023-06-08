@@ -24,6 +24,7 @@ import { useMemo } from 'react'
 import useSWR from 'swr'
 import { multicallv2 } from 'utils/multicall'
 import { useAccount } from 'wagmi'
+import { beraCreateFarmFetcherV3 } from 'config/fn'
 
 export const farmV3ApiFetch = (chainId: number): Promise<FarmsV3Response> =>
   fetch(`/api/v3/${chainId}/farms`)
@@ -49,7 +50,7 @@ const fallback: Awaited<ReturnType<typeof farmFetcherV3.fetchFarms>> = {
 
 const API_FLAG = false
 
-const farmFetcherV3 = createFarmFetcherV3(multicallv2)
+const farmFetcherV3 = beraCreateFarmFetcherV3(multicallv2)
 
 export const useFarmsV3Public = () => {
   const { chainId } = useActiveChainId()
@@ -75,11 +76,12 @@ export const useFarmsV3Public = () => {
           farms,
           commonPrice,
         })
-
+        console.log('🚀 ~ file: hooks.ts:78 ~ data:', data)
         return data
       } catch (error) {
         console.error(error)
         // return fallback for now since not all chains supported
+        console.log('🚀 ~ file: hooks.ts:78 ~ data:', error)
         return fallback
       }
     },
