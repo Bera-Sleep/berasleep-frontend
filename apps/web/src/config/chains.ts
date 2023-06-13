@@ -1,12 +1,10 @@
 import { ChainId } from '@pancakeswap/sdk'
-import { MultiCallV2 } from '@pancakeswap/multicall'
+
 import memoize from 'lodash/memoize'
 import invert from 'lodash/invert'
 import { bsc, bscTestnet, goerli, mainnet, fantomTestnet } from 'wagmi/chains'
 import { ethers } from 'ethers'
 import { getBeraBunnyFactoryAddress } from 'utils/addressHelpers'
-import { Interface, Fragment } from '@ethersproject/abi'
-import { MulticallV3Params } from 'config'
 import multicall3Abi from './abi/Multicall.json'
 import bunnyAbi from './abi/bunnyFactory.json'
 
@@ -15,7 +13,8 @@ export const CHAIN_QUERY_NAME = {
   [ChainId.GOERLI]: 'goerli',
   [ChainId.BSC]: 'bsc',
   [ChainId.BSC_TESTNET]: 'bscTestnet',
-} as const satisfies Record<ChainId, string>
+  4002: 'ftmTestnet',
+}
 
 const CHAIN_QUERY_NAME_TO_ID = invert(CHAIN_QUERY_NAME)
 
@@ -83,6 +82,7 @@ export const beraBunnyFactoryAddress = {
 
 export const beraMasterChefV3Address = {
   4002: '0x70F3Db6104306c739Ee3fddc4cAbF1EE36fE9108',
+  56: '0x556B9306565093C855AEA9AE92A594704c2Cd59e',
 }
 
 export const newProvider = {
@@ -93,63 +93,6 @@ export const newProvider = {
 export const getBeraMulticallContract = (chainId: number = ftmTest.chainId) => {
   const multicallAddress = beraMulticallAddress[chainId ?? ftmTest.chainId]
   return new ethers.Contract(multicallAddress, multicall3Abi, newProvider[chainId])
-}
-
-export const beraMulticallv3 = async ({
-  calls,
-  chainId = ftmTest.chainId,
-  allowFailure,
-  overrides,
-}: MulticallV3Params) => {
-  const multi = getBeraMulticallContract()
-  if (!multi) throw new Error(`Multicall Provider missing for ${chainId}`)
-  const interfaceCache = new WeakMap()
-  const _calls = calls.map(({ abi, address, name, params, allowFailure: _allowFailure }) => {
-    let itf = interfaceCache.get(abi)
-    if (!itf) {
-      itf = new Interface(abi)
-      interfaceCache.set(abi, itf)
-    }
-    if (!itf.fragments.some((fragment: Fragment) => fragment.name === name))
-      console.error(`${name} missing on ${address}`)
-    const callData = itf.encodeFunctionData(name, params ?? [])
-    return {
-      target: address.toLowerCase(),
-      allowFailure: allowFailure || _allowFailure,
-      callData,
-    }
-  })
-
-  const result = await multi.callStatic.aggregate3(_calls, ...(overrides ? [overrides] : []))
-
-  return result.map((call: any, i: number) => {
-    const { returnData, success } = call
-    if (!success || returnData === '0x') return null
-    const { abi, name } = calls[i]
-    const itf = interfaceCache.get(abi)
-    const decoded = itf?.decodeFunctionResult(name, returnData)
-    return decoded
-  })
-}
-
-export const beraMulticallv2: MultiCallV2 = async ({ abi, calls, chainId = ftmTest.chainId, options }) => {
-  const { requireSuccess = true, ...overrides } = options || {}
-  const multi = getBeraMulticallContract()
-  if (!multi) throw new Error(`Multicall Provider missing for ${chainId}`)
-  const itf = new Interface(abi)
-
-  const calldata = calls.map((call) => ({
-    target: call.address.toLowerCase(),
-    callData: itf.encodeFunctionData(call.name, call.params),
-  }))
-
-  const returnData = await multi.callStatic.tryAggregate(requireSuccess, calldata, overrides)
-  const res = returnData.map((call: any, i: number) => {
-    const [result, data] = call
-    return result && data !== '0x' ? itf.decodeFunctionResult(calls[i].name, data) : null
-  })
-
-  return res as any
 }
 
 export const getBeraBunnyFactoryContract = (chainId: number = ftmTest.chainId) => {

@@ -1,81 +1,76 @@
 import { ComputedFarmConfigV3, FarmV3DataWithPrice } from '@pancakeswap/farms'
-import {
-  CommonPrice,
-  farmV3FetchFarms,
-  fetchMasterChefV3Data,
-  getCakeApr,
-  LPTvl,
-} from '@pancakeswap/farms/src/fetchFarmsV3'
-import { MultiCallV2 } from '@pancakeswap/multicall'
-import { beraMasterChefV3Address, bscMainnet, ftmTest } from 'config/chains'
+import { CommonPrice, getCakeApr, LPTvl } from '@pancakeswap/farms/src/fetchFarmsV3'
+import { Call, MultiCallV2 } from '@pancakeswap/multicall'
+import { beraMasterChefV3Address, bscMainnet, ftmTest, getBeraMulticallContract } from 'config/chains'
 import BigNumber from 'bignumber.js'
+import { Interface, Fragment } from '@ethersproject/abi'
+import { MulticallV3Params } from 'config'
+import masterchefV3Abi from './abi/masterChefV3.json'
 
 const supportedChainIdV3 = [ftmTest.chainId, bscMainnet.chainId]
 
-export function beraCreateFarmFetcherV3(multicallv2: MultiCallV2) {
-  const fetchFarms = async ({
-    farms,
-    chainId,
-    commonPrice,
-  }: {
-    chainId: any
-    farms: ComputedFarmConfigV3[]
-    commonPrice: CommonPrice
-  }) => {
-    const masterChefAddress = beraMasterChefV3Address[chainId]
-    if (!masterChefAddress) {
-      throw new Error('Unsupported chain')
-    }
+export const DEFAULT_COMMON_PRICE = {
+  56: {},
+  4002: {
+    '0x26d8777A043BE096cB212deA533D101750d9C272': '1',
+  },
+}
 
-    try {
-      const { poolLength, totalAllocPoint, latestPeriodCakePerSecond } = await fetchMasterChefV3Data({
-        multicallv2,
-        masterChefAddress,
-        chainId,
-      })
-
-      const cakePerSecond = new BigNumber(latestPeriodCakePerSecond.toString()).div(1e18).div(1e12).toString()
-
-      const farmsWithPrice = await farmV3FetchFarms({
-        farms,
-        chainId,
-        multicallv2,
-        masterChefAddress,
-        totalAllocPoint,
-        commonPrice,
-      })
-
-      return {
-        poolLength: poolLength.toNumber(),
-        farmsWithPrice,
-        cakePerSecond,
+export function createMulticall() {
+  const beraMulticallv3 = async ({ calls, chainId = ftmTest.chainId, allowFailure, overrides }: MulticallV3Params) => {
+    const multi = getBeraMulticallContract(chainId)
+    if (!multi) throw new Error(`Multicall Provider missing for ${chainId}`)
+    const interfaceCache = new WeakMap()
+    const _calls = calls.map(({ abi, address, name, params, allowFailure: _allowFailure }) => {
+      let itf = interfaceCache.get(abi)
+      if (!itf) {
+        itf = new Interface(abi)
+        interfaceCache.set(abi, itf)
       }
-    } catch (error) {
-      console.error(error)
-      throw error
-    }
+      if (!itf.fragments.some((fragment: Fragment) => fragment.name === name))
+        console.error(`${name} missing on ${address}`)
+      const callData = itf.encodeFunctionData(name, params ?? [])
+      return {
+        target: address.toLowerCase(),
+        allowFailure: allowFailure || _allowFailure,
+        callData,
+      }
+    })
+
+    const result = await multi.callStatic.aggregate3(_calls, ...(overrides ? [overrides] : []))
+
+    return result.map((call: any, i: number) => {
+      const { returnData, success } = call
+      if (!success || returnData === '0x') return null
+      const { abi, name } = calls[i]
+      const itf = interfaceCache.get(abi)
+      const decoded = itf?.decodeFunctionResult(name, returnData)
+      return decoded
+    })
   }
+  const beraMulticallv2: MultiCallV2 = async ({ abi, calls, chainId = ftmTest.chainId, options }) => {
+    const { requireSuccess = true, ...overrides } = options || {}
+    const multi = getBeraMulticallContract()
+    if (!multi) throw new Error(`Multicall Provider missing for ${chainId}`)
+    const itf = new Interface(abi)
 
-  const getCakeAprAndTVL = (farm: FarmV3DataWithPrice, lpTVL: LPTvl, cakePrice: string, cakePerSecond: string) => {
-    const [token0Price, token1Price] = farm.token.sortsBefore(farm.quoteToken)
-      ? [farm.tokenPriceBusd, farm.quoteTokenPriceBusd]
-      : [farm.quoteTokenPriceBusd, farm.tokenPriceBusd]
-    const tvl = new BigNumber(token0Price).times(lpTVL.token0).plus(new BigNumber(token1Price).times(lpTVL.token1))
+    const calldata = calls.map((call) => ({
+      target: call.address.toLowerCase(),
+      callData: itf.encodeFunctionData(call.name, call.params),
+    }))
 
-    const cakeApr = getCakeApr(farm.poolWeight, tvl, cakePrice, cakePerSecond)
+    const returnData = await multi.callStatic.tryAggregate(requireSuccess, calldata, overrides)
+    const res = returnData.map((call: any, i: number) => {
+      const [result, data] = call
+      return result && data !== '0x' ? itf.decodeFunctionResult(calls[i].name, data) : null
+    })
 
-    return {
-      activeTvlUSD: tvl.toString(),
-      activeTvlUSDUpdatedAt: lpTVL.updatedAt,
-      cakeApr,
-    }
+    return res as any
   }
-
   return {
-    fetchFarms,
-    getCakeAprAndTVL,
-    isChainSupported: (chainId: number) => supportedChainIdV3.includes(chainId),
-    supportedChainId: supportedChainIdV3,
-    isTestnet: (chainId: number) => [ftmTest.chainId].includes(chainId),
+    beraMulticallv2,
+    beraMulticallv3,
   }
 }
+
+export const { beraMulticallv2, beraMulticallv3 } = createMulticall()
