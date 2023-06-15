@@ -10,13 +10,14 @@ import {
   Weth,
   Zap,
   IPancakePair,
+  Bera,
 } from 'config/abi/types'
 import QuoterV2Abi from 'config/abi/QuoterV2.json'
 
 import zapAbi from 'config/abi/zap.json'
 import NFTPositionManagerABI from 'config/abi/nftPositionManager.json'
 import addresses from 'config/constants/contracts'
-import { useProviderOrSigner } from 'hooks/useProviderOrSigner'
+import { useBeraProviderOrSigner, useProviderOrSigner } from 'hooks/useProviderOrSigner'
 import { useMemo } from 'react'
 import { getMulticallAddress, getPredictionsV1Address, getZapAddress } from 'utils/addressHelpers'
 import {
@@ -76,6 +77,7 @@ import multiCallAbi from 'config/abi/Multicall.json'
 import WETH_ABI from 'config/abi/weth.json'
 import WBETH_BSC_ABI from 'config/abi/wbethBSC.json'
 import WBETH_ETH_ABI from 'config/abi/wbethETH.json'
+import { getBeraBunnyFactoryContract, getBeraTokenContract } from 'config/chains'
 import { getContract } from 'utils'
 
 import { WBETH } from 'config/constants/liquidStaking'
@@ -125,9 +127,25 @@ export const useCake = (): { reader: Cake; signer: Cake } => {
   )
 }
 
+export const useBera = (): { reader: Bera; signer: Bera } => {
+  const providerOrSigner = useBeraProviderOrSigner(true)
+  return useMemo(
+    () => ({
+      reader: getBeraTokenContract(),
+      signer: getBeraTokenContract(undefined, providerOrSigner),
+    }),
+    [providerOrSigner],
+  )
+}
+
 export const useBunnyFactory = () => {
   const { data: signer } = useSigner()
   return useMemo(() => getBunnyFactoryContract(signer), [signer])
+}
+
+export const useBeraBunnyFactory = () => {
+  const { data: signer } = useSigner()
+  return useMemo(() => getBeraBunnyFactoryContract(undefined, signer), [signer])
 }
 
 export const useProfileContract = (withSignerIfPossible = true) => {
@@ -283,6 +301,10 @@ export function useContract<T extends Contract = Contract>(
 
 export function useTokenContract(tokenAddress?: string, withSignerIfPossible?: boolean) {
   return useContract<Erc20>(tokenAddress, ERC20_ABI, withSignerIfPossible)
+}
+
+export function useBeraContract() {
+  return getBeraTokenContract()
 }
 
 export function useWNativeContract(withSignerIfPossible?: boolean): Contract | null {

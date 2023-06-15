@@ -10,7 +10,9 @@ import { useNftsForAddress } from 'views/Nft/market/hooks/useNftsForAddress'
 const NftProfilePage = () => {
   const { address: account } = useAccount()
   const accountAddress = useRouter().query.accountAddress as string
+  console.log('🚀 ~ file: [accountAddress].tsx:13 ~ NftProfilePage ~ accountAddress:', accountAddress)
   const isConnectedProfile = account?.toLowerCase() === accountAddress?.toLowerCase()
+  console.log('🚀 ~ file: [accountAddress].tsx:15 ~ NftProfilePage ~ isConnectedProfile:', isConnectedProfile)
   const {
     profile,
     isValidating: isProfileFetching,

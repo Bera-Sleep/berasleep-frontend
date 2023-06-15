@@ -7,7 +7,7 @@ import { NftToken } from 'state/nftMarket/types'
 import { getNftApi } from 'state/nftMarket/helpers'
 import { multicallv2 } from 'utils/multicall'
 import { getBeraSleepProfileAddress, getPancakeProfileAddress } from 'utils/addressHelpers'
-import { beraMulticallv2 } from 'config/chains'
+import { beraMulticallv2 } from 'config/fn'
 
 export interface GetProfileResponse {
   hasRegistered: boolean

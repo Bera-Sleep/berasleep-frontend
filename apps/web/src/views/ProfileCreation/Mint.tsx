@@ -4,8 +4,8 @@ import { Card, CardBody, Heading, Text, useToast } from '@pancakeswap/uikit'
 import { useAccount } from 'wagmi'
 import { useTranslation } from '@pancakeswap/localization'
 import useApproveConfirmTransaction from 'hooks/useApproveConfirmTransaction'
-import { useCake, useBunnyFactory } from 'hooks/useContract'
-import { useGetCakeBalance } from 'hooks/useTokenBalance'
+import { useCake, useBunnyFactory, useBera, useBeraBunnyFactory } from 'hooks/useContract'
+import { useGetBeraBalance, useGetCakeBalance } from 'hooks/useTokenBalance'
 import { useCallWithGasPrice } from 'hooks/useCallWithGasPrice'
 import ApproveConfirmButtons from 'components/ApproveConfirmButtons'
 import { getNftsFromCollectionApi } from 'state/nftMarket/helpers'
@@ -29,10 +29,17 @@ const Mint: React.FC<React.PropsWithChildren> = () => {
   const { toastSuccess } = useToast()
 
   const { address: account } = useAccount()
-  const { reader: cakeContractReader, signer: cakeContractApprover } = useCake()
-  const bunnyFactoryContract = useBunnyFactory()
+  // const { reader: cakeContractReader, signer: cakeContractApprover } = useCake()
+  // const bunnyFactoryContract = useBunnyFactory()
+
+  const { reader: cakeContractReader, signer: cakeContractApprover } = useBera()
+  console.log('signer', cakeContractApprover)
+  const bunnyFactoryContract = useBeraBunnyFactory()
   const { t } = useTranslation()
-  const { balance: cakeBalance, fetchStatus } = useGetCakeBalance()
+  const { balance: cakeBalance, fetchStatus } = useGetBeraBalance()
+
+  console.log('balance', cakeBalance)
+
   const hasMinimumCakeRequired = fetchStatus === FetchStatus.Fetched && cakeBalance.gte(MINT_COST)
   const { callWithGasPrice } = useCallWithGasPrice()
 
@@ -41,17 +48,20 @@ const Mint: React.FC<React.PropsWithChildren> = () => {
       const response = await getNftsFromCollectionApi(pancakeBunniesAddress)
       if (!response) return
       const { data: allPbTokens } = response
+      console.log('response bunny', response)
       const nfts = STARTER_NFT_BUNNY_IDS.map((bunnyId) => {
         if (allPbTokens && allPbTokens[bunnyId]) {
           return { ...allPbTokens[bunnyId], bunnyId }
         }
         return undefined
       })
+
       setStarterNfts(nfts)
     }
     if (starterNfts.length === 0) {
       getStarterNfts()
     }
+    console.log('🚀 ~ file: Mint.tsx:66 ~ starterNfts:', starterNfts)
   }, [starterNfts])
 
   const { isApproving, isApproved, isConfirmed, isConfirming, handleApprove, handleConfirm } =

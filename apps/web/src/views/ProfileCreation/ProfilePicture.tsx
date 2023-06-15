@@ -44,6 +44,7 @@ const ProfilePicture: React.FC = () => {
   const { selectedNft, actions } = useContext(ProfileCreationContext)
   const profileContract = useProfileContract(false)
   const { isLoading: isProfileLoading, profile } = useProfile()
+  console.log(profile)
   const { nfts, isLoading: isUserNftLoading } = useNftsForAddress(account, profile, isProfileLoading)
 
   useEffect(() => {

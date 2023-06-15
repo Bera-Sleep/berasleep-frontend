@@ -11,6 +11,7 @@ import { isAddress } from 'utils'
 
 export const useNftsForAddress = (account: string, profile: Profile, isProfileFetching: boolean) => {
   const { data: collections } = useGetCollections()
+  console.log('collections', collections)
 
   const { nfts, isLoading, refresh } = useCollectionsNftsForAddress(account, profile, isProfileFetching, collections)
   return { nfts, isLoading, refresh }

@@ -1,12 +1,15 @@
-import { ChainId } from '@pancakeswap/sdk'
+import { ChainId, ERC20Token } from '@pancakeswap/sdk'
 
 import memoize from 'lodash/memoize'
 import invert from 'lodash/invert'
+import { Bera } from 'config/abi/types'
 import { bsc, bscTestnet, goerli, mainnet, fantomTestnet } from 'wagmi/chains'
-import { ethers } from 'ethers'
+import { ethers, Signer } from 'ethers'
+import { Provider } from '@ethersproject/abstract-provider'
 import { getBeraBunnyFactoryAddress } from 'utils/addressHelpers'
 import multicall3Abi from './abi/Multicall.json'
 import bunnyAbi from './abi/bunnyFactory.json'
+import beraAbi from './abi/bera.json'
 
 export const CHAIN_QUERY_NAME = {
   [ChainId.ETHEREUM]: 'eth',
@@ -77,7 +80,7 @@ export const beraMulticallAddress = {
 }
 
 export const beraBunnyFactoryAddress = {
-  4002: '0x6b1AF859d15635B52c5501fB2112bfD8e5708640',
+  4002: '0xD7c6BE9b454C9a0fCd45462C0317F5e7fe630Fe9',
 }
 
 export const beraMasterChefV3Address = {
@@ -95,7 +98,19 @@ export const getBeraMulticallContract = (chainId: number = ftmTest.chainId) => {
   return new ethers.Contract(multicallAddress, multicall3Abi, newProvider[chainId])
 }
 
-export const getBeraBunnyFactoryContract = (chainId: number = ftmTest.chainId) => {
+export const getBeraBunnyFactoryContract = (
+  chainId: number = ftmTest.chainId,
+  signerOrProvider?: Signer | Provider,
+) => {
   const bunnyFactoryAddress = getBeraBunnyFactoryAddress(chainId)
-  return new ethers.Contract(bunnyFactoryAddress, bunnyAbi, newProvider[chainId])
+  return new ethers.Contract(bunnyFactoryAddress, bunnyAbi, signerOrProvider ?? newProvider[chainId])
+}
+
+export const BERA_TOKEN_ADDRESS = {
+  4002: '0xC938173CccA0f3C917A0dC799B3dbEF89626fE2B',
+}
+
+export const getBeraTokenContract = (chainId: number = ftmTest.chainId, signerOrProvider?: Signer | Provider) => {
+  const address = BERA_TOKEN_ADDRESS[chainId]
+  return new ethers.Contract(address, beraAbi, signerOrProvider ?? newProvider[chainId]) as Bera
 }

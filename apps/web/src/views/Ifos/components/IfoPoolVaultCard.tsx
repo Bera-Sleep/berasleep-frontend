@@ -10,10 +10,12 @@ const IfoPoolVaultCard = () => {
   const { isXl, isLg, isMd, isXs, isSm } = useMatchBreakpoints()
   const isSmallerThanXl = isXl || isLg || isMd || isXs || isSm
   const { pools } = usePoolsWithVault()
+  console.log('poools', pools)
   const cakePool = useMemo(
     () => pools.find((pool) => pool.userData && pool.sousId === 0),
     [pools],
   ) as Pool.DeserializedPool<Token>
+  console.log('cakePool', cakePool)
 
   return (
     <Flex width="100%" maxWidth={400} alignItems="center" flexDirection="column">

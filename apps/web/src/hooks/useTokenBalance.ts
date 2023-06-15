@@ -10,7 +10,7 @@ import useSWR from 'swr'
 import { BIG_ZERO } from '@pancakeswap/utils/bigNumber'
 import { bscRpcProvider } from 'utils/providers'
 import { useWeb3React } from '@pancakeswap/wagmi'
-import { useTokenContract } from './useContract'
+import { useBeraContract, useTokenContract } from './useContract'
 import { useSWRContract } from './useSWRContract'
 
 const useTokenBalance = (tokenAddress: string, forceBSC?: boolean) => {
@@ -41,6 +41,34 @@ const useTokenBalance = (tokenAddress: string, forceBSC?: boolean) => {
   }
 }
 
+const useBeraTokenBalance = () => {
+  const { address: account } = useAccount()
+
+  const contract = useBeraContract()
+
+  const key = useMemo(
+    () =>
+      account
+        ? {
+            contract,
+            methodName: 'balanceOf',
+            params: [account],
+          }
+        : null,
+    [account, contract],
+  )
+
+  const { data, status, ...rest } = useSWRContract(key as any, {
+    refreshInterval: FAST_INTERVAL,
+  })
+
+  return {
+    ...rest,
+    fetchStatus: status,
+    balance: data ? new BigNumber(data.toString()) : BIG_ZERO,
+  }
+}
+
 export const useGetBnbBalance = () => {
   const { address: account } = useAccount()
   const { status, data, mutate } = useSWR([account, 'bnbBalance'], async () => {
@@ -55,6 +83,11 @@ export const useGetCakeBalance = () => {
   const { balance, fetchStatus } = useTokenBalance(CAKE[chainId]?.address || CAKE[ChainId.BSC]?.address, true)
 
   // TODO: Remove ethers conversion once useTokenBalance is converted to ethers.BigNumber
+  return { balance: EthersBigNumber.from(balance.toString()), fetchStatus }
+}
+
+export const useGetBeraBalance = () => {
+  const { balance, fetchStatus } = useBeraTokenBalance()
   return { balance: EthersBigNumber.from(balance.toString()), fetchStatus }
 }
 
