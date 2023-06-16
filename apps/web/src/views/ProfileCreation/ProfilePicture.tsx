@@ -15,7 +15,7 @@ import { useAccount, useSigner } from 'wagmi'
 import { getPancakeProfileAddress } from 'utils/addressHelpers'
 import { getErc721Contract } from 'utils/contractHelpers'
 import { useTranslation } from '@pancakeswap/localization'
-import { useProfileContract } from 'hooks/useContract'
+import { useBeraProfileContract, useProfileContract } from 'hooks/useContract'
 import { useCallWithGasPrice } from 'hooks/useCallWithGasPrice'
 import useCatchTxError from 'hooks/useCatchTxError'
 import { nftsBaseUrl } from 'views/Nft/market/constants'
@@ -42,10 +42,13 @@ const ProfilePicture: React.FC = () => {
   const [isProfileNftsLoading, setIsProfileNftsLoading] = useState(true)
   const [userProfileCreationNfts, setUserProfileCreationNfts] = useState(null)
   const { selectedNft, actions } = useContext(ProfileCreationContext)
-  const profileContract = useProfileContract(false)
+  console.log('🚀 ~ file: ProfilePicture.tsx:45 ~ selectedNft:', selectedNft)
+
+  const profileContract = useBeraProfileContract(false)
   const { isLoading: isProfileLoading, profile } = useProfile()
   console.log(profile)
   const { nfts, isLoading: isUserNftLoading } = useNftsForAddress(account, profile, isProfileLoading)
+  console.log('🚀 ~ file: ProfilePicture.tsx:51 ~ nfts:', nfts)
 
   useEffect(() => {
     const fetchUserPancakeCollectibles = async () => {

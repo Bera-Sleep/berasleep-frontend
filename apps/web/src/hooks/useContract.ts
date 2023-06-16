@@ -64,6 +64,7 @@ import {
   getV3AirdropContract,
   getUnsContract,
   getBeraMasterChefV3Contract,
+  getBeraProfileContract,
 } from 'utils/contractHelpers'
 import { useSigner } from 'wagmi'
 
@@ -151,6 +152,11 @@ export const useBeraBunnyFactory = () => {
 export const useProfileContract = (withSignerIfPossible = true) => {
   const providerOrSigner = useProviderOrSigner(withSignerIfPossible, true)
   return useMemo(() => getProfileContract(providerOrSigner), [providerOrSigner])
+}
+
+export const useBeraProfileContract = (withSignerIfPossible = true) => {
+  const providerOrSigner = useBeraProviderOrSigner(withSignerIfPossible)
+  return useMemo(() => getBeraProfileContract(providerOrSigner), [providerOrSigner])
 }
 
 export const useLotteryV2Contract = () => {

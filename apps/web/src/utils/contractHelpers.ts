@@ -37,6 +37,7 @@ import {
   getV3MigratorAddress,
   getV3AirdropAddress,
   getBeraMasterChefV3Address,
+  getBeraSleepProfileAddress,
 } from 'utils/addressHelpers'
 
 // ABI
@@ -87,6 +88,7 @@ import tradingRewardABI from 'config/abi/tradingReward.json'
 import masterChefV3Abi from 'config/abi/masterChefV3.json'
 import v3MigratorAbi from 'config/abi/v3Migrator.json'
 import V3AirdropAbi from 'config/abi/v3Airdrop.json'
+import beraProfile from 'config/abi/beraProfile.json'
 
 // Types
 import type {
@@ -135,6 +137,8 @@ import type {
   V3Migrator,
   V3Airdrop,
   UNS,
+  Bera,
+  BeraProfile,
 } from 'config/abi/types'
 import { ChainId } from '@pancakeswap/sdk'
 import { beraTokenAddress, cakeVaultV2Address, ftmTest, newProvider } from 'config/chains'
@@ -180,7 +184,7 @@ export const getBeraSleepPoolAddress = (chainId?: number) => {
 export const getBeraSleepTokenContract = (signer?: Signer | Provider, chainId?: number) => {
   const beraAddress = beraTokenAddress[chainId ?? ftmTest.chainId]
   const ftmProvider = new ethers.providers.StaticJsonRpcProvider(ftmTest.rpc)
-  return new ethers.Contract(beraAddress, cakeAbi, ftmProvider) as Cake
+  return new ethers.Contract(beraAddress, cakeAbi, ftmProvider) as Bera
 }
 
 export const getPointCenterIfoContract = (signer?: Signer | Provider) => {
@@ -196,6 +200,11 @@ export const getCakeContract = (signer?: Signer | Provider, chainId?: number) =>
 export const getProfileContract = (signer?: Signer | Provider) => {
   return getContract({ abi: profileABI, address: getPancakeProfileAddress(), signer }) as PancakeProfile
 }
+
+export const getBeraProfileContract = (signer?: Signer | Provider, chainId?: number) => {
+  return getContract({ abi: beraProfile, address: getBeraSleepProfileAddress(chainId), signer }) as BeraProfile
+}
+
 export const getBunnyFactoryContract = (signer?: Signer | Provider) => {
   return getContract({ abi: bunnyFactoryAbi, address: getBunnyFactoryAddress(), signer }) as BunnyFactory
 }

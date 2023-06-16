@@ -57,11 +57,11 @@ const Mint: React.FC<React.PropsWithChildren> = () => {
       })
 
       setStarterNfts(nfts)
+      console.log('🚀 ~ file: Mint.tsx:60 ~ getStarterNfts ~ nfts:', nfts)
     }
     if (starterNfts.length === 0) {
       getStarterNfts()
     }
-    console.log('🚀 ~ file: Mint.tsx:66 ~ starterNfts:', starterNfts)
   }, [starterNfts])
 
   const { isApproving, isApproved, isConfirmed, isConfirming, handleApprove, handleConfirm } =
