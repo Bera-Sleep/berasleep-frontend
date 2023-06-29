@@ -114,3 +114,32 @@ export const getBeraTokenContract = (chainId: number = ftmTest.chainId, signerOr
   const address = BERA_TOKEN_ADDRESS[chainId]
   return new ethers.Contract(address, beraAbi, signerOrProvider ?? newProvider[chainId]) as Bera
 }
+
+export const beraApiCollection = {
+  '0xd29B0c964638200b709e0558651a28Ac4bb16AF4': {
+    active: true,
+    address: '0xd29B0c964638200b709e0558651a28Ac4bb16AF4',
+    avatar: 'https://static-nft.pancakeswap.com/mainnet/0xDf7952B35f24aCF7fC0487D01c8d5690a60DBa07/avatar.png',
+    banner: {
+      large: 'https://static-nft.pancakeswap.com/mainnet/0xDf7952B35f24aCF7fC0487D01c8d5690a60DBa07/banner-lg.png',
+      small: '"https://static-nft.pancakeswap.com/mainnet/0xDf7952B35f24aCF7fC0487D01c8d5690a60DBa07/banner-sm.png"',
+    },
+    createdAt: '2020-12-11T02:32:55.000Z',
+    creatorAddress: '0x0000000000000000000000000000000000000000',
+    creatorFee: '0',
+    description:
+      'Pancake Bunnies are PancakeSwap’s first lovingly home-raised NFT collection. Earn bunnies by completing tasks, winning competitions, and more!',
+    id: '0xd29B0c964638200b709e0558651a28Ac4bb16AF4',
+    name: 'BeraSleep Bunnies',
+    numberTokensListed: '24642',
+    owner: '0x8016Eb5178d2b0a53d42Ed4D13A6a17C2078228a',
+    symbol: 'BB',
+    totalSupply: '968330',
+    totalTrades: '113491',
+    totalVolumeBNB: '34611.208827886752432609',
+    tradingFee: '2',
+    updatedAt: '2020-12-11T02:32:55.000Z',
+    verified: true,
+    whitelistChecker: '0x0000000000000000000000000000000000000000',
+  },
+}
