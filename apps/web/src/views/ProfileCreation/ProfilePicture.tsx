@@ -26,7 +26,7 @@ import NextStepButton from './NextStepButton'
 import { ProfileCreationContext } from './contexts/ProfileCreationProvider'
 import multicall from '../../utils/multicall'
 import profileABI from '../../config/abi/pancakeProfile.json'
-import { useNftsForAddress } from '../Nft/market/hooks/useNftsForAddress'
+import { useBeraNftsForAddress, useNftsForAddress } from '../Nft/market/hooks/useNftsForAddress'
 
 const Link = styled(NextLinkFromReactRouter)`
   color: ${({ theme }) => theme.colors.primary};
@@ -47,7 +47,7 @@ const ProfilePicture: React.FC = () => {
   const profileContract = useBeraProfileContract(false)
   const { isLoading: isProfileLoading, profile } = useProfile()
   console.log(profile)
-  const { nfts, isLoading: isUserNftLoading } = useNftsForAddress(account, profile, isProfileLoading)
+  const { nfts, isLoading: isUserNftLoading } = useBeraNftsForAddress(account, profile, isProfileLoading)
   console.log('🚀 ~ file: ProfilePicture.tsx:51 ~ nfts:', nfts)
 
   useEffect(() => {

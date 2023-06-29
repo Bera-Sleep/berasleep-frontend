@@ -1253,6 +1253,61 @@ export const getCompleteAccountNftData = async (
   return completeNftData
 }
 
+export const getBeraCompleteAccountNftData = async (
+  account: string,
+  collections: ApiCollections,
+  profileNftWithCollectionAddress?: TokenIdWithCollectionAddress,
+): Promise<NftToken[]> => {
+  // Add delist collections to allow user reclaim their NFTs
+  const collectionsWithDelist = { ...collections, ...DELIST_COLLECTIONS }
+
+  const [walletNftIdsWithCollectionAddress, onChainForSaleNfts] = await Promise.all([
+    fetchWalletTokenIdsForCollections(account, collectionsWithDelist),
+    getAccountNftsOnChainMarketData(collectionsWithDelist, account),
+  ])
+
+  if (profileNftWithCollectionAddress?.tokenId) {
+    walletNftIdsWithCollectionAddress.unshift(profileNftWithCollectionAddress)
+  }
+
+  const walletNftsByCollection = groupBy(
+    walletNftIdsWithCollectionAddress,
+    (walletNftId) => walletNftId.collectionAddress,
+  )
+
+  const walletMarketData = await fetchWalletMarketData(walletNftsByCollection)
+
+  const walletNftsWithMarketData = attachMarketDataToWalletNfts(walletNftIdsWithCollectionAddress, walletMarketData)
+
+  const walletTokenIds = walletNftIdsWithCollectionAddress
+    .filter((walletNft) => {
+      // Profile Pic NFT is no longer wanted in this array, hence the filter
+      return profileNftWithCollectionAddress?.tokenId !== walletNft.tokenId
+    })
+    .map((nft) => nft.tokenId)
+
+  const tokenIdsForSale = onChainForSaleNfts.map((nft) => nft.tokenId)
+
+  const forSaleNftIds = onChainForSaleNfts.map((nft) => {
+    return { collectionAddress: nft.collection.id, tokenId: nft.tokenId }
+  })
+
+  const metadataForAllNfts = await getNftsFromDifferentCollectionsApi([
+    ...forSaleNftIds,
+    ...walletNftIdsWithCollectionAddress,
+  ])
+
+  const completeNftData = combineNftMarketAndMetadata(
+    metadataForAllNfts,
+    onChainForSaleNfts,
+    walletNftsWithMarketData,
+    walletTokenIds,
+    tokenIdsForSale,
+    profileNftWithCollectionAddress?.tokenId,
+  )
+
+  return completeNftData
+}
 /**
  * Fetch distribution information for a collection
  * @returns
