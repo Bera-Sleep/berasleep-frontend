@@ -63,6 +63,10 @@ export const blockChainData = {
   4002: ftmTest,
 }
 
+export const beraNftMarketV1 = {
+  4002: '0xF47Eb2Aa00f760Ab863f0fa00675e05785DA3A80',
+}
+
 export const cakeVaultV2Address = {
   4002: '0xAE06cF3a2247aea8217e95E2e26b440bfB7C9b99',
 }
@@ -142,4 +146,8 @@ export const beraApiCollection = {
     verified: true,
     whitelistChecker: '0x0000000000000000000000000000000000000000',
   },
+}
+
+export const getBeraNftMarketAddress = (chainId: number = ftmTest.chainId) => {
+  return beraNftMarketV1[chainId]
 }
