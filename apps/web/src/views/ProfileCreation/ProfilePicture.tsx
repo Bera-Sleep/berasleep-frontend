@@ -46,7 +46,7 @@ const ProfilePicture: React.FC = () => {
 
   const profileContract = useBeraProfileContract(false)
   const { isLoading: isProfileLoading, profile } = useProfile()
-  console.log(profile)
+  console.log('🚀 ~ file: ProfilePicture.tsx:50 ~ profile:', profile)
   const { nfts, isLoading: isUserNftLoading } = useBeraNftsForAddress(account, profile, isProfileLoading)
   console.log('🚀 ~ file: ProfilePicture.tsx:51 ~ nfts:', nfts)
 
