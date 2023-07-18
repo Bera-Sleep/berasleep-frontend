@@ -1,5 +1,6 @@
 import { BigNumber } from 'ethers'
 import { formatBigNumber } from '@pancakeswap/utils/formatBalance'
+import { beraMulticallv2 } from 'config/fn'
 import erc721Abi from 'config/abi/erc721.json'
 import nftMarketAbi from 'config/abi/nftMarket.json'
 import { NOT_ON_SALE_SELLER } from 'config/constants'
@@ -1022,6 +1023,112 @@ export const fetchWalletTokenIdsForCollections = async (
   return walletNfts.concat(walletNftsWithWO.flat())
 }
 
+export const fetcBerahWalletTokenIdsForCollections = async (
+  account: string,
+  collections: ApiCollections,
+): Promise<TokenIdWithCollectionAddress[]> => {
+  console.log('🚀 ~ file: helpers.ts:1030 ~ collections:', collections)
+  const tokenOfOwnerByIndexCollections = Object.values(collections).filter(
+    (c) => !COLLECTIONS_WITH_WALLET_OF_OWNER.includes(c.address),
+  )
+  const balanceOfCalls = tokenOfOwnerByIndexCollections.map((collection) => {
+    const { address: collectionAddress } = collection
+    return {
+      address: collectionAddress,
+      name: 'balanceOf',
+      params: [account],
+    }
+  })
+  console.log(
+    '🚀 ~ file: helpers.ts:1042 ~ balanceOfCalls ~ tokenOfOwnerByIndexCollections:',
+    tokenOfOwnerByIndexCollections,
+  )
+
+  const balanceOfCallsResultRaw = await beraMulticallv2({
+    abi: erc721Abi,
+    calls: balanceOfCalls,
+    options: { requireSuccess: false },
+  })
+  const balanceOfCallsResult = balanceOfCallsResultRaw.flat()
+  console.log('🚀 ~ file: helpers.ts:1048 ~ balanceOfCallsResult:', balanceOfCallsResult)
+
+  const tokenIdCalls = tokenOfOwnerByIndexCollections
+    .map((collection, index) => {
+      const balanceOf = balanceOfCallsResult[index]?.toNumber() ?? 0
+      console.log('🚀 ~ file: helpers.ts:1054 ~ .map ~ balanceOf:', balanceOf)
+      const { address: collectionAddress } = collection
+
+      console.log('range =', range(balanceOf))
+
+      return range(balanceOf).map((tokenIndex) => {
+        return {
+          address: collectionAddress,
+          name: 'tokenOfOwnerByIndex',
+          params: [account, tokenIndex],
+        }
+      })
+    })
+    .flat()
+  console.log('🚀 ~ file: helpers.ts:1064 ~ tokenIdCalls:', tokenIdCalls)
+
+  const tokenIdResultRaw = await beraMulticallv2({
+    abi: erc721Abi,
+    calls: tokenIdCalls,
+    options: { requireSuccess: false },
+  })
+  const tokenIdResult = tokenIdResultRaw.flat()
+  console.log('🚀 ~ file: helpers.ts:1071 ~ tokenIdResult:', tokenIdResult.toString())
+
+  const nftLocation = NftLocation.WALLET
+
+  const walletNfts = tokenIdResult.reduce((acc, tokenIdBn, index) => {
+    if (tokenIdBn) {
+      const { address: collectionAddress } = tokenIdCalls[index]
+      acc.push({ tokenId: tokenIdBn.toString(), collectionAddress, nftLocation })
+    }
+    return acc
+  }, [])
+  console.log('🚀 ~ file: helpers.ts:1083 ~ walletNfts ~ walletNfts:', walletNfts)
+
+  const walletOfOwnerCalls = Object.values(collections)
+    .filter((c) => COLLECTIONS_WITH_WALLET_OF_OWNER.includes(c.address))
+    .map((c) => {
+      return {
+        address: c.address,
+        name: 'walletOfOwner',
+        params: [account],
+      }
+    })
+  console.log('🚀 ~ file: helpers.ts:1094 ~ walletOfOwnerCalls:', walletOfOwnerCalls)
+
+  const walletOfOwnerCallResult = await beraMulticallv2({
+    abi: [
+      {
+        inputs: [{ internalType: 'address', name: '_owner', type: 'address' }],
+        name: 'walletOfOwner',
+        outputs: [{ internalType: 'uint256[]', name: '', type: 'uint256[]' }],
+        stateMutability: 'view',
+        type: 'function',
+      },
+    ],
+    calls: walletOfOwnerCalls,
+  })
+
+  const walletNftsWithWO = walletOfOwnerCallResult.flat().reduce((acc, wo, index) => {
+    if (wo) {
+      const { address: collectionAddress } = walletOfOwnerCalls[index]
+      acc.push(wo.map((w) => ({ tokenId: w.toString(), collectionAddress, nftLocation })))
+    }
+    return acc
+  }, [])
+
+  console.log(
+    '🚀 ~ file: helpers.ts:1119 ~ walletNfts.concat(walletNftsWithWO.flat()):',
+    walletNfts.concat(walletNftsWithWO.flat()),
+  )
+  return walletNfts.concat(walletNftsWithWO.flat())
+}
+
 /**
  * Helper to combine data from the collections' API and subgraph
  */
@@ -1258,13 +1365,16 @@ export const getBeraCompleteAccountNftData = async (
   collections: ApiCollections,
   profileNftWithCollectionAddress?: TokenIdWithCollectionAddress,
 ): Promise<NftToken[]> => {
+  console.log('🚀 ~ file: helpers.ts:1361 ~ profileNftWithCollectionAddress:', profileNftWithCollectionAddress)
   // Add delist collections to allow user reclaim their NFTs
   const collectionsWithDelist = { ...collections, ...DELIST_COLLECTIONS }
 
   const [walletNftIdsWithCollectionAddress, onChainForSaleNfts] = await Promise.all([
-    fetchWalletTokenIdsForCollections(account, collectionsWithDelist),
+    fetcBerahWalletTokenIdsForCollections(account, collectionsWithDelist),
     getAccountNftsOnChainMarketData(collectionsWithDelist, account),
   ])
+  console.log('🚀 ~ file: helpers.ts:1268 ~ walletNftIdsWithCollectionAddress:', walletNftIdsWithCollectionAddress)
+  console.log('🚀 ~ file: helpers.ts:1265 ~ onChainForSaleNfts:', onChainForSaleNfts)
 
   if (profileNftWithCollectionAddress?.tokenId) {
     walletNftIdsWithCollectionAddress.unshift(profileNftWithCollectionAddress)
