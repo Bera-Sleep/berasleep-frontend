@@ -1,4 +1,4 @@
-import { BigNumber } from 'ethers'
+import { BigNumber, Contract } from 'ethers'
 import { formatBigNumber } from '@pancakeswap/utils/formatBalance'
 import { beraMulticallv2 } from 'config/fn'
 import erc721Abi from 'config/abi/erc721.json'
@@ -15,7 +15,7 @@ import range from 'lodash/range'
 import lodashSize from 'lodash/size'
 import { stringify } from 'querystring'
 import { isAddress } from 'utils'
-import { getNftMarketAddress } from 'utils/addressHelpers'
+import { getBeraSleepBunniesAddress, getNftMarketAddress } from 'utils/addressHelpers'
 import { getNftMarketContract } from 'utils/contractHelpers'
 import { multicallv2 } from 'utils/multicall'
 import { pancakeBunniesAddress } from 'views/Nft/market/constants'
@@ -1363,6 +1363,7 @@ export const getCompleteAccountNftData = async (
 export const getBeraCompleteAccountNftData = async (
   account: string,
   collections: ApiCollections,
+  beraBunniesContract: Contract,
   profileNftWithCollectionAddress?: TokenIdWithCollectionAddress,
 ): Promise<NftToken[]> => {
   console.log('🚀 ~ file: helpers.ts:1361 ~ profileNftWithCollectionAddress:', profileNftWithCollectionAddress)
@@ -1385,7 +1386,101 @@ export const getBeraCompleteAccountNftData = async (
     (walletNftId) => walletNftId.collectionAddress,
   )
 
+  console.log('walletNftsByCollection', walletNftsByCollection)
+
   const walletMarketData = await fetchWalletMarketData(walletNftsByCollection)
+
+  const tokenId = Object.values(walletMarketData).map((item) => item.tokenId)[0]
+  if (tokenId) {
+    console.log('tokenid', tokenId)
+    const bunnyName = await beraBunniesContract.getBunnyNameOfTokenId(tokenId)
+    console.log('bunnyName', bunnyName)
+    switch (bunnyName.toLowerCase()) {
+      case 'sleepy':
+        return [
+          {
+            collectionAddress: getBeraSleepBunniesAddress(),
+            collectionName: 'BeraSleepBunnies',
+            description: 'Aww, looks like eating bera all day is tough work. Sweet dreams!',
+            image: {
+              original:
+                'https://static-nft.pancakeswap.com/mainnet/0xDf7952B35f24aCF7fC0487D01c8d5690a60DBa07/sleepy.png',
+              thumbnail:
+                'https://static-nft.pancakeswap.com/mainnet/0xDf7952B35f24aCF7fC0487D01c8d5690a60DBa07/sleepy-1000.png',
+            },
+            tokenId,
+            name: bunnyName,
+          },
+        ]
+      case 'dollop':
+        return [
+          {
+            collectionAddress: getBeraSleepBunniesAddress(),
+            collectionName: 'BeraSleepBunnies',
+            description: "Nommm... Oh hi, I'm just meditating on the meaning of BERA.",
+            image: {
+              original:
+                'https://static-nft.pancakeswap.com/mainnet/0xDf7952B35f24aCF7fC0487D01c8d5690a60DBa07/dollop.png',
+              thumbnail:
+                'https://static-nft.pancakeswap.com/mainnet/0xDf7952B35f24aCF7fC0487D01c8d5690a60DBa07/dollop-1000.png',
+            },
+            tokenId,
+            name: bunnyName,
+          },
+        ]
+      case 'twinkle':
+        return [
+          {
+            collectionAddress: getBeraSleepBunniesAddress(),
+            collectionName: 'BeraSleepBunnies',
+            description: "Three guesses what's put that twinkle in those eyes! (Hint: it's BERA)",
+            image: {
+              original:
+                'https://static-nft.pancakeswap.com/mainnet/0xDf7952B35f24aCF7fC0487D01c8d5690a60DBa07/twinkle.png',
+              thumbnail:
+                'https://static-nft.pancakeswap.com/mainnet/0xDf7952B35f24aCF7fC0487D01c8d5690a60DBa07/twinkle-1000.png',
+            },
+            tokenId,
+            name: bunnyName,
+          },
+        ]
+      case 'churro':
+        return [
+          {
+            collectionAddress: getBeraSleepBunniesAddress(),
+            collectionName: 'BeraSleepBunnies',
+            description: "Don't let that dopey smile deceive you... Churro's a master BERA chef!",
+            image: {
+              original:
+                'https://static-nft.pancakeswap.com/mainnet/0xDf7952B35f24aCF7fC0487D01c8d5690a60DBa07/churro.png',
+              thumbnail:
+                'https://static-nft.pancakeswap.com/mainnet/0xDf7952B35f24aCF7fC0487D01c8d5690a60DBa07/churro-1000.png',
+            },
+            tokenId,
+            name: bunnyName,
+          },
+        ]
+      case 'sunny':
+        return [
+          {
+            collectionAddress: getBeraSleepBunniesAddress(),
+            collectionName: 'BeraSleepBunnies',
+            description: "Don't let that dopey smile deceive you... Churro's a master BERA chef!",
+            image: {
+              original:
+                'https://static-nft.pancakeswap.com/mainnet/0xDf7952B35f24aCF7fC0487D01c8d5690a60DBa07/sunny.png',
+              thumbnail:
+                'https://static-nft.pancakeswap.com/mainnet/0xDf7952B35f24aCF7fC0487D01c8d5690a60DBa07/sunny-1000.png',
+            },
+            tokenId,
+            name: bunnyName,
+          },
+        ]
+
+      default:
+        return []
+    }
+  }
 
   const walletNftsWithMarketData = attachMarketDataToWalletNfts(walletNftIdsWithCollectionAddress, walletMarketData)
 

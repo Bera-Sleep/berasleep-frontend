@@ -92,6 +92,10 @@ export const beraMasterChefV3Address = {
   56: '0x556B9306565093C855AEA9AE92A594704c2Cd59e',
 }
 
+export const beraSleepBunniesAddress = {
+  4002: '0xd29B0c964638200b709e0558651a28Ac4bb16AF4',
+}
+
 export const newProvider = {
   [ftmTest.chainId]: new ethers.providers.StaticJsonRpcProvider(ftmTest.rpc),
   [bscMainnet.chainId]: new ethers.providers.StaticJsonRpcProvider(bscMainnet.rpc),

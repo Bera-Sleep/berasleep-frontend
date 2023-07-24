@@ -9,6 +9,7 @@ import { FetchStatus } from 'config/constants/types'
 import { usePreviousValue } from '@pancakeswap/hooks'
 import { isAddress } from 'utils'
 import { beraApiCollection } from 'config/chains'
+import { useBeraBunniesContract } from 'hooks/useContract'
 
 export const useNftsForAddress = (account: string, profile: Profile, isProfileFetching: boolean) => {
   const { data: collections } = useGetCollections()
@@ -24,7 +25,12 @@ export const useBeraNftsForAddress = (account: string, profile: Profile, isProfi
   const collections = { ...beraApiCollection }
   console.log('collections', collections)
 
-  const { nfts, isLoading, refresh } = useCollectionsNftsForAddress(account, profile, isProfileFetching, collections)
+  const { nfts, isLoading, refresh } = useBeraCollectionsNftsForAddress(
+    account,
+    profile,
+    isProfileFetching,
+    collections,
+  )
   console.log('🚀 ~ file: useNftsForAddress.tsx:17 ~ useNftsForAddress ~ nfts:', nfts)
 
   return { nfts, isLoading, refresh }
@@ -83,6 +89,7 @@ export const useBeraCollectionsNftsForAddress = (
   const resetLaggyRef = useRef(null)
   const previousAccount = usePreviousValue(account)
   console.log('🚀 ~ file: useBeraNftsForAddress.tsx:30 ~ previousAccount:', previousAccount)
+  const beraBunniesContract = useBeraBunniesContract()
 
   if (resetLaggyRef.current && previousAccount !== account) {
     resetLaggyRef.current()
@@ -105,11 +112,14 @@ export const useBeraCollectionsNftsForAddress = (
   // @ts-ignore
   const { status, data, mutate, resetLaggy } = useSWR(
     !isProfileFetching && !isEmpty(collections) && isAddress(account) ? [account, 'userNfts'] : null,
-    async () => getBeraCompleteAccountNftData(account, collections, profileNftWithCollectionAddress),
+    async () =>
+      getBeraCompleteAccountNftData(account, collections, beraBunniesContract, profileNftWithCollectionAddress),
     {
       keepPreviousData: true,
     },
   )
+
+  console.log('🚀 ~ file: useNftsForAddress.tsx:114 ~ data:', data)
 
   resetLaggyRef.current = resetLaggy
 

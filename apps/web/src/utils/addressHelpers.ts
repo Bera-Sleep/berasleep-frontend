@@ -3,6 +3,7 @@ import {
   beraBunnyFactoryAddress,
   beraMasterChefV3Address,
   beraMulticallAddress,
+  beraSleepBunniesAddress,
   beraSleepProfileAddress,
   ftmTest,
 } from 'config/chains'
@@ -37,6 +38,9 @@ export const getBeraSleepProfileAddress = (chainId: number = ftmTest.chainId) =>
 }
 export const getBeraMulticallAddress = (chainId: number = ftmTest.chainId) => {
   return beraMulticallAddress[chainId]
+}
+export const getBeraSleepBunniesAddress = (chainId: number = ftmTest.chainId) => {
+  return beraSleepBunniesAddress[chainId]
 }
 export const getPancakeBunniesAddress = () => {
   return getAddress(addresses.pancakeBunnies)

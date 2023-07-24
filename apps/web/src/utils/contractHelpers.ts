@@ -38,6 +38,7 @@ import {
   getV3AirdropAddress,
   getBeraMasterChefV3Address,
   getBeraSleepProfileAddress,
+  getBeraSleepBunniesAddress,
 } from 'utils/addressHelpers'
 
 // ABI
@@ -89,6 +90,7 @@ import masterChefV3Abi from 'config/abi/masterChefV3.json'
 import v3MigratorAbi from 'config/abi/v3Migrator.json'
 import V3AirdropAbi from 'config/abi/v3Airdrop.json'
 import beraProfile from 'config/abi/beraProfile.json'
+import beraBunnies from 'config/abi/beraSleepBunnies.json'
 
 // Types
 import type {
@@ -203,6 +205,10 @@ export const getProfileContract = (signer?: Signer | Provider) => {
 
 export const getBeraProfileContract = (signer?: Signer | Provider, chainId?: number) => {
   return getContract({ abi: beraProfile, address: getBeraSleepProfileAddress(chainId), signer }) as BeraProfile
+}
+
+export const getBeraBunniesContract = (signer?: Signer | Provider, chainId?: number) => {
+  return getContract({ abi: beraBunnies, address: getBeraSleepBunniesAddress(chainId), signer }) as BeraProfile
 }
 
 export const getBunnyFactoryContract = (signer?: Signer | Provider) => {

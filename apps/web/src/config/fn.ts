@@ -1,6 +1,6 @@
 import { ComputedFarmConfigV3, FarmV3DataWithPrice } from '@pancakeswap/farms'
 import { CommonPrice, getCakeApr, LPTvl } from '@pancakeswap/farms/src/fetchFarmsV3'
-import { Call, MultiCallV2 } from '@pancakeswap/multicall'
+import { Call, MultiCall, MultiCallV2 } from '@pancakeswap/multicall'
 import { beraMasterChefV3Address, bscMainnet, ftmTest, getBeraMulticallContract } from 'config/chains'
 import BigNumber from 'bignumber.js'
 import { Interface, Fragment } from '@ethersproject/abi'
@@ -67,10 +67,27 @@ export function createMulticall() {
 
     return res as any
   }
+
+  const beraMulticall: MultiCall = async (abi: any[], calls: Call[], chainId = ftmTest.chainId) => {
+    const multi = getBeraMulticallContract()
+    if (!multi) throw new Error(`Multicall Provider missing for ${chainId}`)
+    const itf = new Interface(abi)
+
+    const calldata = calls.map((call) => ({
+      target: call.address.toLowerCase(),
+      callData: itf.encodeFunctionData(call.name, call.params),
+    }))
+    const { returnData } = await multi.callStatic.aggregate(calldata)
+
+    const res = returnData.map((call: any, i: number) => itf.decodeFunctionResult(calls[i].name, call))
+
+    return res as any
+  }
   return {
+    beraMulticall,
     beraMulticallv2,
     beraMulticallv3,
   }
 }
 
-export const { beraMulticallv2, beraMulticallv3 } = createMulticall()
+export const { beraMulticall, beraMulticallv2, beraMulticallv3 } = createMulticall()

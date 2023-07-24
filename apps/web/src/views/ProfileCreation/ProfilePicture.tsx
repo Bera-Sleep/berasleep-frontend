@@ -15,7 +15,8 @@ import { useAccount, useSigner } from 'wagmi'
 import { getPancakeProfileAddress } from 'utils/addressHelpers'
 import { getErc721Contract } from 'utils/contractHelpers'
 import { useTranslation } from '@pancakeswap/localization'
-import { useBeraProfileContract, useProfileContract } from 'hooks/useContract'
+import { beraMulticall } from 'config/fn'
+import { useBeraProfileContract } from 'hooks/useContract'
 import { useCallWithGasPrice } from 'hooks/useCallWithGasPrice'
 import useCatchTxError from 'hooks/useCatchTxError'
 import { nftsBaseUrl } from 'views/Nft/market/constants'
@@ -26,7 +27,7 @@ import NextStepButton from './NextStepButton'
 import { ProfileCreationContext } from './contexts/ProfileCreationProvider'
 import multicall from '../../utils/multicall'
 import profileABI from '../../config/abi/pancakeProfile.json'
-import { useBeraNftsForAddress, useNftsForAddress } from '../Nft/market/hooks/useNftsForAddress'
+import { useBeraNftsForAddress } from '../Nft/market/hooks/useNftsForAddress'
 
 const Link = styled(NextLinkFromReactRouter)`
   color: ${({ theme }) => theme.colors.primary};
@@ -59,6 +60,10 @@ const ProfilePicture: React.FC = () => {
             return acc
           }, new Set<string>()),
         )
+        console.log(
+          '🚀 ~ file: ProfilePicture.tsx:62 ~ fetchUserPancakeCollectibles ~ nftsByCollection:',
+          nftsByCollection,
+        )
 
         if (nftsByCollection.length > 0) {
           const nftRole = await profileContract.NFT_ROLE()
@@ -69,8 +74,16 @@ const ProfilePicture: React.FC = () => {
               params: [nftRole, collectionAddress],
             }
           })
-          const collectionRolesRaw = await multicall(profileABI, collectionsNftRoleCalls)
+          const collectionRolesRaw = await beraMulticall(profileABI, collectionsNftRoleCalls)
+          console.log(
+            '🚀 ~ file: ProfilePicture.tsx:78 ~ fetchUserPancakeCollectibles ~ collectionRolesRaw:',
+            collectionRolesRaw,
+          )
           const collectionRoles = collectionRolesRaw.flat()
+          console.log(
+            '🚀 ~ file: ProfilePicture.tsx:83 ~ fetchUserPancakeCollectibles ~ collectionRoles:',
+            collectionRoles,
+          )
           setUserProfileCreationNfts(
             nfts.filter((nft) => collectionRoles[nftsByCollection.indexOf(nft.collectionAddress)]),
           )
@@ -131,6 +144,8 @@ const ProfilePicture: React.FC = () => {
     )
   }
 
+  console.log('userProfileCreationNfts', userProfileCreationNfts)
+
   return (
     <>
       <Text fontSize="20px" color="textSubtle" bold>
@@ -156,7 +171,7 @@ const ProfilePicture: React.FC = () => {
           <NftWrapper>
             {userProfileCreationNfts?.length ? (
               userProfileCreationNfts
-                .filter((walletNft) => walletNft.location === NftLocation.WALLET)
+                // .filter((walletNft) => walletNft.location === NftLocation.WALLET)
                 .map((walletNft) => {
                   return (
                     <SelectionCard
