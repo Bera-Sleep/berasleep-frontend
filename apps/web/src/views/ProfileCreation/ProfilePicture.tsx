@@ -12,11 +12,11 @@ import {
   NextLinkFromReactRouter,
 } from '@pancakeswap/uikit'
 import { useAccount, useSigner } from 'wagmi'
-import { getPancakeProfileAddress } from 'utils/addressHelpers'
+import { getBeraSleepProfileAddress } from 'utils/addressHelpers'
 import { getErc721Contract } from 'utils/contractHelpers'
 import { useTranslation } from '@pancakeswap/localization'
 import { beraMulticall } from 'config/fn'
-import { useBeraProfileContract } from 'hooks/useContract'
+import { useBeraBunniesContract, useBeraProfileContract } from 'hooks/useContract'
 import { useCallWithGasPrice } from 'hooks/useCallWithGasPrice'
 import useCatchTxError from 'hooks/useCatchTxError'
 import { nftsBaseUrl } from 'views/Nft/market/constants'
@@ -42,6 +42,7 @@ const ProfilePicture: React.FC = () => {
   const [isApproved, setIsApproved] = useState(false)
   const [isProfileNftsLoading, setIsProfileNftsLoading] = useState(true)
   const [userProfileCreationNfts, setUserProfileCreationNfts] = useState(null)
+  const bunnyContract = useBeraBunniesContract()
   const { selectedNft, actions } = useContext(ProfileCreationContext)
   console.log('🚀 ~ file: ProfilePicture.tsx:45 ~ selectedNft:', selectedNft)
 
@@ -103,6 +104,19 @@ const ProfilePicture: React.FC = () => {
     }
   }, [nfts, profileContract, isUserNftLoading])
 
+  useEffect(() => {
+    const checkNftIsAprrove = async () => {
+      if (selectedNft?.tokenId) {
+        const nftApprovedAddress = await bunnyContract.getApproved(selectedNft.tokenId)
+        const beraSleepProfileAddress = getBeraSleepProfileAddress()
+        if (nftApprovedAddress === beraSleepProfileAddress) {
+          setIsApproved(true)
+        }
+      }
+    }
+    checkNftIsAprrove()
+  }, [selectedNft, bunnyContract])
+
   const { t } = useTranslation()
   const { toastSuccess } = useToast()
   const { fetchWithCatchTxError, loading: isApproving } = useCatchTxError()
@@ -112,7 +126,7 @@ const ProfilePicture: React.FC = () => {
   const handleApprove = async () => {
     const contract = getErc721Contract(selectedNft.collectionAddress, signer)
     const receipt = await fetchWithCatchTxError(() => {
-      return callWithGasPrice(contract, 'approve', [getPancakeProfileAddress(), selectedNft.tokenId])
+      return callWithGasPrice(contract, 'approve', [getBeraSleepProfileAddress(), selectedNft.tokenId])
     })
     if (receipt?.status) {
       toastSuccess(t('Enabled'), t('Please progress to the next step.'))
@@ -145,6 +159,8 @@ const ProfilePicture: React.FC = () => {
   }
 
   console.log('userProfileCreationNfts', userProfileCreationNfts)
+
+  console.log('selectedNft', selectedNft)
 
   return (
     <>
