@@ -158,10 +158,6 @@ const ProfilePicture: React.FC = () => {
     )
   }
 
-  console.log('userProfileCreationNfts', userProfileCreationNfts)
-
-  console.log('selectedNft', selectedNft)
-
   return (
     <>
       <Text fontSize="20px" color="textSubtle" bold>
