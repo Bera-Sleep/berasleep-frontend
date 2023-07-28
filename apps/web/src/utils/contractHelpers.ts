@@ -141,6 +141,7 @@ import type {
   UNS,
   Bera,
   BeraProfile,
+  BeraSleepBunnies,
 } from 'config/abi/types'
 import { ChainId } from '@pancakeswap/sdk'
 import { beraTokenAddress, cakeVaultV2Address, ftmTest, newProvider } from 'config/chains'
@@ -208,7 +209,7 @@ export const getBeraProfileContract = (signer?: Signer | Provider, chainId?: num
 }
 
 export const getBeraBunniesContract = (signer?: Signer | Provider, chainId?: number) => {
-  return getContract({ abi: beraBunnies, address: getBeraSleepBunniesAddress(chainId), signer }) as BeraProfile
+  return getContract({ abi: beraBunnies, address: getBeraSleepBunniesAddress(chainId), signer }) as BeraSleepBunnies
 }
 
 export const getBunnyFactoryContract = (signer?: Signer | Provider) => {

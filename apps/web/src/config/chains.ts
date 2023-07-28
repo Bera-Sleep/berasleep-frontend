@@ -155,3 +155,5 @@ export const beraApiCollection = {
 export const getBeraNftMarketAddress = (chainId: number = ftmTest.chainId) => {
   return beraNftMarketV1[chainId]
 }
+
+export const BERA_API = 'http://localhost:1337'

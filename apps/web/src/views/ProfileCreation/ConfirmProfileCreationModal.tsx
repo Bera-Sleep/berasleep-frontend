@@ -2,7 +2,7 @@ import { Modal, Flex, Text, useToast } from '@pancakeswap/uikit'
 import { BigNumber } from 'ethers'
 import { formatUnits } from 'ethers/lib/utils'
 import { useTranslation } from '@pancakeswap/localization'
-import { useCake, useProfileContract } from 'hooks/useContract'
+import { useBera, useBeraProfileContract, useCake, useProfileContract } from 'hooks/useContract'
 import useApproveConfirmTransaction from 'hooks/useApproveConfirmTransaction'
 import { useProfile } from 'state/profile/hooks'
 import { requiresApproval } from 'utils/requiresApproval'
@@ -31,10 +31,12 @@ const ConfirmProfileCreationModal: React.FC<React.PropsWithChildren<Props>> = ({
   onDismiss,
 }) => {
   const { t } = useTranslation()
-  const profileContract = useProfileContract()
+  // const profileContract = useProfileContract()
+  const profileContract = useBeraProfileContract()
   const { refresh: refreshProfile } = useProfile()
   const { toastSuccess } = useToast()
-  const { reader: cakeContractReader, signer: cakeContractApprover } = useCake()
+  // const { reader: cakeContractReader, signer: cakeContractApprover } = useCake()
+  const { reader: cakeContractReader, signer: cakeContractApprover } = useBera()
   const { callWithGasPrice } = useCallWithGasPrice()
 
   const { isApproving, isApproved, isConfirmed, isConfirming, handleApprove, handleConfirm } =

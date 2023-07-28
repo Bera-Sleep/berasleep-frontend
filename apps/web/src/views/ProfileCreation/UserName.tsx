@@ -26,6 +26,7 @@ import { ChangeEvent, useEffect, useRef, useState } from 'react'
 import styled from 'styled-components'
 import fetchWithTimeout from 'utils/fetchWithTimeout'
 import { useAccount } from 'wagmi'
+import { BERA_API } from 'config/chains'
 import { REGISTER_COST, USERNAME_MAX_LENGTH, USERNAME_MIN_LENGTH } from './config'
 import ConfirmProfileCreationModal from './ConfirmProfileCreationModal'
 import useProfileCreation from './contexts/hook'
@@ -95,7 +96,12 @@ const UserName: React.FC<React.PropsWithChildren> = () => {
           setMessage('')
           fetchAbortSignal.current = null
         } else {
-          const res = await fetchWithTimeout(`${API_PROFILE}/api/users/valid/${debouncedUsernameToCheck}`, {
+          // const res = await fetchWithTimeout(`${API_PROFILE}/api/users/valid/${debouncedUsernameToCheck}`, {
+          //  method: 'get',
+          //  signal: abortSignal,
+          //  timeout: 30000,
+          // })
+          const res = await fetchWithTimeout(`${BERA_API}/api/v1/profile/valid/${debouncedUsernameToCheck}`, {
             method: 'get',
             signal: abortSignal,
             timeout: 30000,
@@ -143,7 +149,9 @@ const UserName: React.FC<React.PropsWithChildren> = () => {
       setIsLoading(true)
 
       const signature = await signMessageAsync({ message: userName })
-      const response = await fetch(`${API_PROFILE}/api/users/register`, {
+      // const response = await fetch(`${API_PROFILE}/api/users/register`
+      // wait fetch(`${BERA_API}/api/v1/profile/${account}`)
+      const response = await fetch(`${BERA_API}/api/v1/profile/register`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -174,11 +182,13 @@ const UserName: React.FC<React.PropsWithChildren> = () => {
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const response = await fetch(`${API_PROFILE}/api/users/${account}`)
+        // const response = await fetch(`${API_PROFILE}/api/users/${account}`)
+        const response = await fetch(`${BERA_API}/api/v1/profile/${account}`)
         const data = await response.json()
 
         if (response.ok) {
           const dateCreated = formatDistance(parseISO(data.created_at), new Date())
+
           setMessage(t('Created %dateCreated% ago', { dateCreated }))
 
           actions.setUserName(data.username)
