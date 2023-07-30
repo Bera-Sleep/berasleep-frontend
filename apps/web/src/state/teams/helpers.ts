@@ -1,6 +1,6 @@
 import merge from 'lodash/merge'
 import teamsList from 'config/constants/teams'
-import { getProfileContract } from 'utils/contractHelpers'
+import { getBeraProfileContract, getProfileContract } from 'utils/contractHelpers'
 import { Team } from 'config/constants/types'
 import { multicallv2 } from 'utils/multicall'
 import { TeamsById } from 'state/types'
@@ -9,7 +9,7 @@ import { getBeraSleepProfileAddress, getPancakeProfileAddress } from 'utils/addr
 import fromPairs from 'lodash/fromPairs'
 import { beraMulticallv2 } from 'config/fn'
 
-const profileContract = getProfileContract()
+const profileContract = getBeraProfileContract()
 
 export const getTeam = async (teamId: number): Promise<Team> => {
   try {
@@ -98,7 +98,6 @@ export const getBeraTeams = async (): Promise<TeamsById> => {
         ]
       }),
     )
-    console.log('meraaaaa', merge({}, teamsById, onChainTeamData))
 
     return merge({}, teamsById, onChainTeamData)
   } catch (error) {

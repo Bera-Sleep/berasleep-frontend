@@ -85,16 +85,15 @@ export const useBeraCollectionsNftsForAddress = (
   isProfileFetching: boolean,
   collections: ApiCollections,
 ) => {
-  console.log('🚀 ~ file: useBeraNftsForAddress.tsx:28 ~ profile:', profile)
   const resetLaggyRef = useRef(null)
   const previousAccount = usePreviousValue(account)
-  console.log('🚀 ~ file: useBeraNftsForAddress.tsx:30 ~ previousAccount:', previousAccount)
   const beraBunniesContract = useBeraBunniesContract()
 
   if (resetLaggyRef.current && previousAccount !== account) {
     resetLaggyRef.current()
   }
-  const hasProfileNft = profile?.tokenId
+  const hasProfileNft = profile?.isActive
+  console.log('🚀 ~ file: useNftsForAddress.tsx:96 ~ hasProfileNft:', hasProfileNft)
   const profileNftTokenId = profile?.tokenId?.toString()
   const profileNftCollectionAddress = profile?.collectionAddress
 
@@ -118,8 +117,6 @@ export const useBeraCollectionsNftsForAddress = (
       keepPreviousData: true,
     },
   )
-
-  console.log('🚀 ~ file: useNftsForAddress.tsx:114 ~ data:', data)
 
   resetLaggyRef.current = resetLaggy
 

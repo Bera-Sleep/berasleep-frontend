@@ -2,6 +2,7 @@ import type { Signer } from 'ethers'
 import { getAddress } from 'ethers/lib/utils'
 import { BigNumber, Contract } from 'ethers'
 import { AddressZero } from '@ethersproject/constants'
+import { ftmTest } from 'config/chains'
 import type { Provider } from '@ethersproject/providers'
 import { ChainId, Currency } from '@pancakeswap/sdk'
 import { bsc } from 'wagmi/chains'
@@ -23,24 +24,24 @@ export function getBlockExploreLink(
   type: 'transaction' | 'token' | 'address' | 'block' | 'countdown',
   chainIdOverride?: number,
 ): string {
-  const chainId = chainIdOverride || ChainId.BSC
-  const chain = chains.find((c) => c.id === chainId)
-  if (!chain) return bsc.blockExplorers.default.url
+  const chain = ftmTest
+
+  // if (!chain) return ftmTest.blockExplorer
   switch (type) {
     case 'transaction': {
-      return `${chain.blockExplorers.default.url}/tx/${data}`
+      return `${chain.blockExplorer}/tx/${data}`
     }
     case 'token': {
-      return `${chain.blockExplorers.default.url}/token/${data}`
+      return `${chain.blockExplorer}/token/${data}`
     }
     case 'block': {
-      return `${chain.blockExplorers.default.url}/block/${data}`
+      return `${chain.blockExplorer}/block/${data}`
     }
     case 'countdown': {
-      return `${chain.blockExplorers.default.url}/block/countdown/${data}`
+      return `${chain.blockExplorer}/block/countdown/${data}`
     }
     default: {
-      return `${chain.blockExplorers.default.url}/address/${data}`
+      return `${chain.blockExplorer}/address/${data}`
     }
   }
 }

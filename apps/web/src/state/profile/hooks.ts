@@ -27,6 +27,7 @@ export const useProfileForAddress = (
     () => getProfile(address),
     fetchConfiguration,
   )
+  console.log('🚀 ~ file: hooks.ts:26 ~ data:', data)
 
   const { profile } = data ?? { profile: null }
 

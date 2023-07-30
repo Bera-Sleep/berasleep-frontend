@@ -43,6 +43,7 @@ const UserNfts: React.FC<
   const { t } = useTranslation()
 
   const handleCollectibleClick = (nft: NftToken, location: NftLocation) => {
+    console.log('click bne')
     switch (location) {
       case NftLocation.PROFILE:
         setClickedProfileNft({ nft, location })

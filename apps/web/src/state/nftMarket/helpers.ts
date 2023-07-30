@@ -1,3 +1,4 @@
+import { BERA_API } from 'config/chains'
 import { BigNumber, Contract } from 'ethers'
 import { formatBigNumber } from '@pancakeswap/utils/formatBalance'
 import { beraMulticallv2 } from 'config/fn'
@@ -202,6 +203,20 @@ export const getNftApi = async (
   tokenId: string,
 ): Promise<ApiResponseSpecificToken['data']> => {
   const res = await fetch(`${API_NFT}/collections/${collectionAddress}/tokens/${tokenId}`)
+  if (res.ok) {
+    const json = await res.json()
+    return json.data
+  }
+
+  console.error(`API: Can't fetch NFT token ${tokenId} in ${collectionAddress}`, res.status)
+  return null
+}
+
+export const getBeraNftApi = async (
+  collectionAddress: string,
+  tokenId: string,
+): Promise<ApiResponseSpecificToken['data']> => {
+  const res = await fetch(`${BERA_API}/api/v1/nft/${collectionAddress}/tokens/${tokenId}`)
   if (res.ok) {
     const json = await res.json()
     return json.data
@@ -1031,18 +1046,18 @@ export const fetcBerahWalletTokenIdsForCollections = async (
   const tokenOfOwnerByIndexCollections = Object.values(collections).filter(
     (c) => !COLLECTIONS_WITH_WALLET_OF_OWNER.includes(c.address),
   )
+  console.log('🚀 ~ file: helpers.ts:1049 ~ tokenOfOwnerByIndexCollections:', tokenOfOwnerByIndexCollections)
   const balanceOfCalls = tokenOfOwnerByIndexCollections.map((collection) => {
     const { address: collectionAddress } = collection
+    console.log('🚀 ~ file: helpers.ts:1052 ~ balanceOfCalls ~ address:', collectionAddress)
+
     return {
       address: collectionAddress,
       name: 'balanceOf',
       params: [account],
     }
   })
-  console.log(
-    '🚀 ~ file: helpers.ts:1042 ~ balanceOfCalls ~ tokenOfOwnerByIndexCollections:',
-    tokenOfOwnerByIndexCollections,
-  )
+  console.log('🚀 ~ file: helpers.ts:1060 ~ balanceOfCalls ~ balanceOfCalls:', balanceOfCalls)
 
   const balanceOfCallsResultRaw = await beraMulticallv2({
     abi: erc721Abi,
@@ -1410,6 +1425,7 @@ export const getBeraCompleteAccountNftData = async (
             },
             tokenId,
             name: bunnyName,
+            location: profileNftWithCollectionAddress?.tokenId === tokenId ? NftLocation.PROFILE : NftLocation.WALLET,
           },
         ]
       case 'dollop':
@@ -1426,6 +1442,7 @@ export const getBeraCompleteAccountNftData = async (
             },
             tokenId,
             name: bunnyName,
+            location: profileNftWithCollectionAddress?.tokenId === tokenId ? NftLocation.PROFILE : NftLocation.WALLET,
           },
         ]
       case 'twinkle':
@@ -1442,6 +1459,7 @@ export const getBeraCompleteAccountNftData = async (
             },
             tokenId,
             name: bunnyName,
+            location: profileNftWithCollectionAddress?.tokenId === tokenId ? NftLocation.PROFILE : NftLocation.WALLET,
           },
         ]
       case 'churro':
@@ -1458,6 +1476,7 @@ export const getBeraCompleteAccountNftData = async (
             },
             tokenId,
             name: bunnyName,
+            location: profileNftWithCollectionAddress?.tokenId === tokenId ? NftLocation.PROFILE : NftLocation.WALLET,
           },
         ]
       case 'sunny':
@@ -1474,6 +1493,7 @@ export const getBeraCompleteAccountNftData = async (
             },
             tokenId,
             name: bunnyName,
+            location: profileNftWithCollectionAddress?.tokenId === tokenId ? NftLocation.PROFILE : NftLocation.WALLET,
           },
         ]
 

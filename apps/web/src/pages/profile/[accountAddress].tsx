@@ -5,14 +5,12 @@ import { NftProfileLayout } from 'views/Profile'
 import SubMenu from 'views/Profile/components/SubMenu'
 import UnconnectedProfileNfts from 'views/Profile/components/UnconnectedProfileNfts'
 import UserNfts from 'views/Profile/components/UserNfts'
-import { useNftsForAddress } from 'views/Nft/market/hooks/useNftsForAddress'
+import { useBeraNftsForAddress, useNftsForAddress } from 'views/Nft/market/hooks/useNftsForAddress'
 
 const NftProfilePage = () => {
   const { address: account } = useAccount()
   const accountAddress = useRouter().query.accountAddress as string
-  console.log('🚀 ~ file: [accountAddress].tsx:13 ~ NftProfilePage ~ accountAddress:', accountAddress)
   const isConnectedProfile = account?.toLowerCase() === accountAddress?.toLowerCase()
-  console.log('🚀 ~ file: [accountAddress].tsx:15 ~ NftProfilePage ~ isConnectedProfile:', isConnectedProfile)
   const {
     profile,
     isValidating: isProfileFetching,
@@ -22,11 +20,13 @@ const NftProfilePage = () => {
     revalidateOnFocus: true,
     revalidateOnReconnect: true,
   })
+
   const {
     nfts,
     isLoading: isNftLoading,
     refresh: refreshUserNfts,
-  } = useNftsForAddress(accountAddress, profile, isProfileFetching)
+  } = useBeraNftsForAddress(accountAddress, profile, isProfileFetching)
+  console.log('🚀 ~ file: [accountAddress].tsx:29 ~ NftProfilePage ~ nfts:', nfts)
 
   return (
     <>
